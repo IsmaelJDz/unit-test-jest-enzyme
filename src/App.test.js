@@ -2,8 +2,9 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import App, {Todo, TodoForm, useTodos} from './App';
 //import { unmountComponentAtNode } from 'react-dom';
-import { shallow, configure } from 'enzyme';
+import { shallow, mount, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import { func } from 'prop-types';
 
 // test('renders learn react link', () => {
 //   const { getByText } = render(<App />);
@@ -91,6 +92,46 @@ describe('App', () => {
       props.addTodo('texto de prueba')
       props = wrapper.find('div').props()
       expect(props.todos[0]).toEqual({ text : 'texto de prueba' })
+    })
+    it('completeTodo', () => {
+      const Test = (props) => {
+        const hooks = props.hook()
+        return <div {...hooks}></div>
+      }
+      const wrapper = shallow(<Test hook={useTodos} />)
+      let props = wrapper.find('div').props()
+      props.completeTodo(0)
+      props = wrapper.find('div').props()
+      expect(props.todos[0]).toEqual({ text : 'Todo 1', isCompleted: true })
+    })
+    it('removeTodo', () => {
+      const Test = (props) => {
+        const hooks = props.hook()
+        return <div {...hooks}></div>
+      }
+      const wrapper = shallow(<Test hook={useTodos} />)
+      let props = wrapper.find('div').props()
+      props.removeTodo(0)
+      props = wrapper.find('div').props()
+      expect(props.todos).toEqual([
+        {
+          text: "Todo 2",
+          isCompleted: false
+        },
+        {
+          text: "Todo 3",
+          isCompleted: false
+        }
+      ])
+    })
+    it('App', () => {
+      const wrapper = mount(<App />)
+      const prevent = jest.fn()
+      wrapper.find('input').simulate('change', { target: { value: "mi todo!" } })
+      wrapper.find('form').simulate('submit', {preventDefault: prevent} )
+      const respuesta = wrapper.find('.todo').at(0).text().includes('mi todo!')
+      expect(respuesta).toEqual(true)
+      expect(prevent.mock.calls).toEqual([[]])
     })
   })
 })
